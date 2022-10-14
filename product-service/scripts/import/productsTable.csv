@@ -1,0 +1,5 @@
+"id","description","price","title"
+"04f1d188-3d8e-4b64-9c59-8c73e2a779f5","Secure and resizable compute capacity for virtually any workload","30","EC2"
+"67065526-8504-4e6a-9f7e-3605dcbfd512","Created by DynamoDB","2","DynamoDB"
+"0f3ad5f5-962e-454b-bb12-38cda0bb924a","Non-relational DB","200","DynamoDB"
+"c9d404bc-aba2-42cc-b121-e96c238a023d","simple storage","5","S3"

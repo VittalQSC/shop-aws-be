@@ -5,6 +5,11 @@ import { productsListStorage } from "~/storage";
 import envelop from "~/utils/envelop";
 
 export async function handler(event: APIGatewayProxyEvent) {
+  console.log(
+    "GET",
+    "getProductById.handler",
+    `params: ${event.pathParameters}`
+  );
   try {
     if (!event.pathParameters?.id) {
       return envelop("product id was not provided", 400);

@@ -6,6 +6,16 @@ provider:
   name: aws
   runtime: nodejs14.x
   region: eu-west-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/*"
 
 custom:
   webpack:
@@ -22,6 +32,13 @@ plugins:
   - serverless-webpack
 
 functions:
+  createProduct:
+    handler: src/functions/createProduct/createProduct.handler
+    events:
+      - http:
+          method: POST
+          path: /products
+          cors: true
   getProductsList:
     handler: src/functions/getProductsList/getProductsList.handler
     events:
@@ -40,3 +57,32 @@ functions:
             parameters:
               paths:
                 id: true
+
+resources:
+  Resources:
+    productsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: productsTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    stocksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: stocksTable
+        AttributeDefinitions:
+          - AttributeName: product_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: product_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
