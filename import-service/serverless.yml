@@ -1,0 +1,40 @@
+service: import-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: eu-west-1
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "s3:ListBucket"
+      Resource:
+        - "arn:aws:s3:::vshatsou-uploaded"
+    - Effect: "Allow"
+      Action: "s3:*"
+      Resource:
+        - "arn:aws:s3:::vshatsou-uploaded/*"
+
+plugins:
+  - serverless-offline
+  - serverless-webpack
+
+functions:
+  importProductsFile:
+    handler: src/functions/importProductsFile/importProductsFile.handler
+    events:
+      - http:
+          method: GET
+          path: /import
+          cors: true
+  parseImportedProductsFile:
+    handler: src/functions/importFileParser/importFileParser.handler
+    events:
+      - s3:
+          bucket: vshatsou-uploaded
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded/
+          existing: true
