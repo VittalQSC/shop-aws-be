@@ -92,6 +92,15 @@ resources:
         Protocol: email
         TopicArn:
           Ref: createProductTopic
+    createAllExpensiveProductSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: vitali.shatsou@gmail.com
+        Protocol: email
+        TopicArn:
+          Ref: createProductTopic
+        FilterPolicy:
+          price: [{ "numeric": [">=", 250] }]
 
     productsTable:
       Type: AWS::DynamoDB::Table

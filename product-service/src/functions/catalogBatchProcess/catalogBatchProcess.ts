@@ -20,6 +20,12 @@ export async function handler(event: SQSEvent) {
       return !error;
     });
 
+    console.log(products);
+    if (products.length === 0) {
+      console.log("there is no valid products");
+      return;
+    }
+
     for (const product of products) {
       await productsListStorage.create({ id: v4(), ...product });
     }
