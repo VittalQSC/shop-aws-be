@@ -6,6 +6,11 @@ provider:
   name: aws
   runtime: nodejs14.x
   region: eu-west-1
+
+  environment:
+    CREATE_PRODUCT_TOPIC_ARN:
+      Ref: createProductTopic
+
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -16,6 +21,14 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/*"
+    - Effect: "Allow"
+      Action: "sqs:*"
+      Resource:
+        - Fn::ImportValue: CatalogItemsQueueArnId
+    - Effect: "Allow"
+      Action: "sns:*"
+      Resource:
+        Ref: createProductTopic
 
 custom:
   webpack:
@@ -58,8 +71,37 @@ functions:
               paths:
                 id: true
 
+  catalogBatchProcess:
+    handler: src/functions/catalogBatchProcess/catalogBatchProcess.handler
+    events:
+      - sqs:
+          batchSize: 5
+          arn:
+            Fn::ImportValue: CatalogItemsQueueArnId
+
 resources:
   Resources:
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: createProductTopic
+    createProductSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: vitshacov@gmail.com
+        Protocol: email
+        TopicArn:
+          Ref: createProductTopic
+    createAllExpensiveProductSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: vitali.shatsou@gmail.com
+        Protocol: email
+        TopicArn:
+          Ref: createProductTopic
+        FilterPolicy:
+          price: [{ "numeric": [">=", 250] }]
+
     productsTable:
       Type: AWS::DynamoDB::Table
       Properties:

@@ -9,16 +9,25 @@ const s3 = new AWS.S3();
 export async function handler(event: S3Event) {
   try {
     for (const record of event.Records) {
-      const parsedRecord = await parseCsv(
+      const products = await parseCsv(
         UPLOADED_BUCKET,
         record.s3.object.key,
         s3
       );
-      console.log(
-        "s3:ObjectCreated:*",
-        "importFileParser.handler",
-        `parsed ${record.s3.object.key} record: ${JSON.stringify(parsedRecord)}`
-      );
+
+      const sqs = new AWS.SQS();
+      products.forEach(product => {
+        sqs.sendMessage({
+          QueueUrl: `${process.env.SQS_URL}`,
+          MessageBody: JSON.stringify(product),
+        }, (err, data) => {
+          if (err) {
+            console.log(`Send with ERROR: ${err}`);
+          } else {
+            console.log(`Send product: ${JSON.stringify(data)}`, ` QueueUrl: ${process.env.SQS_URL}`);
+          }
+        });
+      });
 
       await s3
         .copyObject({

@@ -8,7 +8,7 @@ export async function handler(event: APIGatewayProxyEvent) {
   console.log(
     "GET",
     "getProductById.handler",
-    `params: ${event.pathParameters}`
+    `params: ${event.pathParameters}`,
   );
   try {
     if (!event.pathParameters?.id) {

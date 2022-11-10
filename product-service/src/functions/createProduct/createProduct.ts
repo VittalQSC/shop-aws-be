@@ -1,21 +1,14 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { v4 } from "uuid";
-import Joi from "joi";
 
 import { productsListStorage } from "~/storage";
+import { productSchema } from "~/shared/schemas/product-schema";
 import envelop from "~/utils/envelop";
-
-const bodySchema = Joi.object({
-  title: Joi.string().required(),
-  description: Joi.string().required(),
-  price: Joi.number().required(),
-  count: Joi.number().required(),
-});
 
 export async function handler(event: APIGatewayProxyEvent) {
   console.log("POST", "createProduct.handler", `body: ${event.body}`);
   try {
-    const { value: body, error } = bodySchema.validate(
+    const { value: body, error } = productSchema.validate(
       JSON.parse(`${event.body}`)
     );
     if (error) {

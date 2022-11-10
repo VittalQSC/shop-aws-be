@@ -1,11 +1,15 @@
 service: import-service
 
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 provider:
   name: aws
   runtime: nodejs14.x
   region: eu-west-1
+
+  environment:
+    SQS_URL:
+      Ref: catalogItemsQueue
 
   iamRoleStatements:
     - Effect: "Allow"
@@ -16,6 +20,10 @@ provider:
       Action: "s3:*"
       Resource:
         - "arn:aws:s3:::vshatsou-uploaded/*"
+    - Effect: "Allow"
+      Action: "sqs:*"
+      Resource:
+        - Fn::GetAtt: [ catalogItemsQueue, Arn ]
 
 plugins:
   - serverless-offline
@@ -38,3 +46,17 @@ functions:
           rules:
             - prefix: uploaded/
           existing: true
+
+resources:
+  Resources:
+    catalogItemsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: catalogue-items-queue
+
+  Outputs:
+    catalogItemsQueueArn:
+      Value:
+        Fn::GetAtt: [catalogItemsQueue, Arn]
+      Export:
+        Name: CatalogItemsQueueArnId
