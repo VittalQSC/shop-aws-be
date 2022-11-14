@@ -1,0 +1,24 @@
+service: authorization-service
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: eu-west-1
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
+  - serverless-webpack
+
+functions:
+  basicAuthorizer:
+    handler: src/functions/basicAuthorizer/basicAuthorizer.handler
+
+resources:
+  Outputs:
+    basicAuthorizerArn:
+      Export:
+        Name: basicAuthorizerArnId
+      Value: !GetAtt BasicAuthorizerLambdaFunction.Arn
