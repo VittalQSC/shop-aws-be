@@ -23,7 +23,7 @@ provider:
     - Effect: "Allow"
       Action: "sqs:*"
       Resource:
-        - Fn::GetAtt: [ catalogItemsQueue, Arn ]
+        - Fn::GetAtt: [catalogItemsQueue, Arn]
 
 plugins:
   - serverless-offline
@@ -37,6 +37,12 @@ functions:
           method: GET
           path: /import
           cors: true
+          authorizer: 
+            arn: arn:aws:lambda:eu-west-1:265069551893:function:authorization-service-dev-basicAuthorizer
+            type: token
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0
+
   parseImportedProductsFile:
     handler: src/functions/importFileParser/importFileParser.handler
     events:
